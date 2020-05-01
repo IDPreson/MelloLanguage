@@ -14,7 +14,6 @@ public class SyntaxParser {
     public void setTokenVector(ArrayList<LexicalTokens.Token> tokenVector) {
         TokenVector.addAll(tokenVector);
     }
-
     String getValueType(String ValueTpye) {
         if (ValueTpye.equals("int")) {
             return ValueTpye;
@@ -69,7 +68,7 @@ public class SyntaxParser {
         Stack<LexicalTokens.Token> OperatorStack=new Stack<>();
         while (!TokenVector.isEmpty()){
             tempToken = TokenVector.peek();
-            if (type.equals("VarDeclaration")) {
+            if(type.equals("VarDeclaration")){
                 if (tempToken.type.equals("Operators") && tempToken.name.equals(";")) {
                     while (!OperatorStack.isEmpty()) {
                         expressions.expression.add(OperatorStack.pop());
@@ -77,12 +76,15 @@ public class SyntaxParser {
                     return expressions;
                 }
             }
-            if (type.equals("IfDeclaration")) {
-                if (tempToken.type.equals("Operators") && (tempToken.name.equals(">") || tempToken.name.equals("<") || tempToken.name.equals("==") || tempToken.name.equals("<=") || tempToken.name.equals(">=") || tempToken.name.equals("&&") || tempToken.name.equals("||") || tempToken.name.equals("!=") || tempToken.name.equals("{"))) {
-                    while (!OperatorStack.empty()) {
-                        expressions.expression.add(OperatorStack.pop());
+            if(type.equals("IfDeclaration")){
+                if (tempToken.type.equals("Operators")) {
+                    switch(tempToken.name){
+                        case ">":case "<":case "==":case "<=":case ">=":case "&&":case "||":case "!=":case "{":
+                            while (!OperatorStack.empty()) {
+                                expressions.expression.add(OperatorStack.pop());
+                            }
+                            return expressions;
                     }
-                    return expressions;
                 }
             }
             if (tempToken.type.equals("Constant") || tempToken.type.equals("String")) {
@@ -123,6 +125,11 @@ public class SyntaxParser {
                             }
                         }
                     }
+                }
+            }
+            if(tempToken.type.equals("KeyWords")){
+                if(tempToken.name.equals("true") || tempToken.name.equals("false")){
+                    expressions.expression.add(tempToken);
                 }
             }
             TokenVector.poll();
@@ -183,19 +190,25 @@ public class SyntaxParser {
                     continue;
                 case 3:
                     Ifexp.expression_2 = PaserExpreession(tempifNode.Declaration);
-                    tempifNode.IfExpressions.push(Ifexp);
+                    tempifNode.If.IfExpressions.push(Ifexp);
+                    Ifexp=new SyntaxAST.ASTIfExpression();
                     state = 4;
                     continue;
                 case 4:
                     if (tempToken.type.equals("Operators") && (tempToken.name.equals("&&") || tempToken.name.equals("||"))) {
-                        tempifNode.IfOperators.push(tempToken.name);
+                        tempifNode.If.IfOperators.push(tempToken.name);
                         TokenVector.poll();
                     }
                     state = 1;
                     continue;
                 case 5:
-                    tempifNode.Body = DealBody();
-                    System.out.println("tempifNode.Body size:" + tempifNode.Body.Nodes.size());
+                    tempifNode.If.IfBody = DealBody();
+                    state = 6;
+                    break;
+                case 6:
+                    if(tempToken.type.equals("KeyWords") && (tempToken.name.equals("else"))){
+                        tempifNode.Else.ElseBody=DealBody();
+                    }
                     return tempifNode;
             }
         }
@@ -213,20 +226,17 @@ public class SyntaxParser {
             }
             if (flag) {
                 if (tempToken.type.equals("KeyWords")) {
-                    if (tempToken.name.equals("string")) {
-                        SyntaxAST.ASTNode var=new SyntaxAST.ASTNode();
-                        var = VarDeclaration(tempToken.name, tempToken, 0, var);
-                        BodyAddress.Nodes.add(var);
-                    }
-                    if (tempToken.name.equals("int")) {
-                        SyntaxAST.ASTNode var=new SyntaxAST.ASTNode();
-                        var = VarDeclaration(tempToken.name, tempToken, 0, var);
-                        BodyAddress.Nodes.add(var);
-                    }
-                    if (tempToken.name.equals("if")) {
-                        SyntaxAST.ASTNode ifstate=new SyntaxAST.ASTNode();
-                        ifstate = IfStatement();
-                        BodyAddress.Nodes.add(ifstate);
+                    switch (tempToken.name){
+                        case "string":case "int": case "bool":
+                            SyntaxAST.ASTNode var=new SyntaxAST.ASTNode();
+                            var = VarDeclaration(tempToken.name, tempToken, 0, var);
+                            BodyAddress.Nodes.add(var);
+                            break;
+                        case "if":
+                            SyntaxAST.ASTNode ifstate;
+                            ifstate = IfStatement();
+                            BodyAddress.Nodes.add(ifstate);
+                            break;
                     }
                 }
             }
@@ -249,28 +259,8 @@ public class SyntaxParser {
             }
         }
         System.out.println(tempNode.name + "||" + tempNode.returnType + "||" + tempNode.type);
-        for (SyntaxAST.ASTparam param : tempNode.params) {
-            System.out.println("   " + param.name + "||" + param.type);
-        }
-        System.out.println("tempNode.Body->Nodes.size():" + tempNode.Body.Nodes.size());
-        for (SyntaxAST.ASTNode node:tempNode.Body.Nodes) {
-            System.out.println(node.name + "||" + node.Declaration + "||" + node.type);
-            if (node.Declaration.equals("VarDeclaration")) {
-                for (LexicalTokens.Token temp:node.expressions.expression) {
-                    System.out.println(temp.name+" ");
-                }
-            }
-            System.out.println();
-            if (node.Declaration.equals("IfDeclaration")) {
-                while (!node.IfOperators.isEmpty()) {
-                    System.out.println("联并运算符：" + node.IfOperators.pop() + " ");
-                }
-                while(!node.IfExpressions.isEmpty()){
-                    SyntaxAST.ASTIfExpression tempExp = node.IfExpressions.pop();
-                    System.out.println("比较运算符："+tempExp.compareOperator);
-                }
-            }
-            System.out.println();
+        while (!tempNode.Body.Nodes.isEmpty()){
+            outASTree(tempNode.Body.Nodes.poll());
         }
     }
     void ParserTokens() {
@@ -278,7 +268,6 @@ public class SyntaxParser {
             LexicalTokens.Token tempToken = TokenVector.poll();
             if (tempToken.type.equals("KeyWords")) {
                 if (tempToken.name.equals("func")) {
-                    System.out.println(tempToken.name);
                     FuncStatement(tempToken);
                 }
             }
@@ -288,5 +277,31 @@ public class SyntaxParser {
     public void startParserTokens() {
         ParserTokens();
         System.out.println("结束");
+    }
+    void outASTree(SyntaxAST.ASTNode tempNode){
+        switch (tempNode.Declaration){
+            case "VarDeclaration":
+                System.out.println("VarDeclaration:" + tempNode.name + "||" + tempNode.type);
+                while(tempNode.expressions.expression.isEmpty()){
+                    System.out.println("expression:"+tempNode.expressions.expression.poll());
+                }
+                return;
+            case "IfDeclaration":
+                while(!tempNode.If.IfOperators.isEmpty()){
+                    System.out.println("IfDeclaration"+tempNode.If.IfOperators.pop());
+                }
+                while(!tempNode.If.IfExpressions.isEmpty()){
+                    System.out.println("IfExpressions"+tempNode.If.IfExpressions.pop());
+                }
+                while(!tempNode.If.IfBody.Nodes.isEmpty()){
+                    System.out.println("IfBody");
+                    outASTree(tempNode.If.IfBody.Nodes.poll());
+                }
+                while(!tempNode.Else.ElseBody.Nodes.isEmpty()){
+                    System.out.println("ElseBody");
+                    outASTree(tempNode.Else.ElseBody.Nodes.poll());
+                }
+                break;
+        }
     }
 }

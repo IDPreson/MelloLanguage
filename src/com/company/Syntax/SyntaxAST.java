@@ -46,26 +46,58 @@ public class SyntaxAST {
         }
     }
     public static class ASTNode extends AST {
-        public String var, Declaration;
+        public String Declaration;
         public ASTExpreesion expressions;
-        public Stack<ASTIfExpression> IfExpressions;
-        public Stack<String> IfOperators;
+        public ASTIf If;
         public ASTBody Body;
+        public ASTElse Else;
         ASTNode(){
             expressions=new ASTExpreesion();
-            IfExpressions=new Stack<>();
-            IfOperators=new Stack<>();
+            If=new ASTIf();
             Body=new ASTBody();
+            Else=new ASTElse();
         }
+
         @Override
         public String toString() {
             return "ASTNode{" +
-                    "var='" + var + '\'' +
-                    ", Declaration='" + Declaration + '\'' +
+                    "Declaration='" + Declaration + '\'' +
                     ", expressions=" + expressions +
+                    ", If=" + If +
+                    ", Body=" + Body +
+                    ", Else=" + Else +
+                    '}';
+        }
+    }
+    public static class ASTElse extends AST{
+        public ASTBody ElseBody;
+        ASTElse(){
+            ElseBody=new ASTBody();
+        }
+
+        @Override
+        public String toString() {
+            return "ASTElse{" +
+                    "ElseBody=" + ElseBody +
+                    '}';
+        }
+    }
+    public static class ASTIf extends AST{
+        public ASTBody IfBody;
+        public Stack<ASTIfExpression> IfExpressions;
+        public Stack<String> IfOperators;
+        ASTIf(){
+            IfExpressions=new Stack<>();
+            IfOperators=new Stack<>();
+            IfBody=new ASTBody();
+        }
+
+        @Override
+        public String toString() {
+            return "ASTIf{" +
+                    "IfBody=" + IfBody +
                     ", IfExpressions=" + IfExpressions +
                     ", IfOperators=" + IfOperators +
-                    ", Body=" + Body +
                     '}';
         }
     }

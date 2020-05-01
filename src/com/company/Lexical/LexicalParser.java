@@ -18,6 +18,8 @@ public class LexicalParser {
         KeyWords.put("bool",true);
         KeyWords.put("func",true);
         KeyWords.put(";",true);
+        KeyWords.put("true",true);
+        KeyWords.put("false",true);
         //-----------------------------------------------------
         Operators.put("{", true);
         Operators.put("}", true);
