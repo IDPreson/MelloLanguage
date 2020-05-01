@@ -69,7 +69,7 @@ public class LexicalParser {
                 type = "KeyWords";
                 break;
             case 2:
-                System.out.println("运算符dd："+tempWords);
+                System.out.println("运算符："+tempWords);
                 type = "Operators";
                 break;
             default:
@@ -117,8 +117,10 @@ public class LexicalParser {
                             pos = lexicalStatements.OperatorsStatement(pos, codes, tempWords,lexicalTokens);
                             break;
                         default:
+                            if(codes.charAt(pos-1)=='='){
+                                TokenType("0");
+                            }
                             tempWords = String.valueOf(codes.charAt(pos));
-                            System.out.println("运算符ss："+tempWords);
                             lexicalTokens.addLexicalToken(tempWords, "Operators", tempWords);
                             break;
                     }

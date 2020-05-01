@@ -10,9 +10,10 @@ public class Main {
 
     public static void main(String[] args) {
         String testCode = "func int main() { " +
-                "int a=1+2+3+4+5+6+7+8+9+10*(6/3*(5-2*8)); " +
-                "string str='fuck you string'+'THis is FUCK STRING!!'; " +
-                "if a+20*5-(2+3*8)<0 && a>0 || str!='fuck you stringTHis is FUCK STRING!!' && a>0 && str=='123456'{ " +
+                "int a=-1+2+3+4+5+6+7+8+9+10*(6/3*(5-2*8));" +
+                "string str='fuck you string'+'THis is FUCK STRING!!';" +
+                "a=a+5*6-(8+9/3);"+
+                "if a+20*5-(2+3*8)<0 && a>0 || str!='fuck you stringTHis is FUCK STRING!!' && a>0 && str=='123456' {" +
                 "   int man=18; " +
                 "   if 1+2+3*5>5 {"+
                 "       int man_2=50;"+
@@ -26,23 +27,7 @@ public class Main {
                 "            }"+
                 "       }"+
                 "   }"+
-                "   else {"+
-                "       int ss=10;"+
-                "   }"+
-                "}" +
-                "else {"+
-                "   int man=20;"+
-                "   if man==20 {"+
-                "       int man=0;"+
-                "   }"+
                 "}"+
-                "if str=='wdnmd砸种' {"+
-                "   string str_1='你就是砸种';"+
-                "    if str=='987654' && time!=15 {"+
-                "       int time=15;"+
-                "    }"+
-                "}"+
-                "bool flag=true;"+
         "}";
         LexicalParser lexicalParser=new LexicalParser();
         ArrayList<LexicalTokens.Token> Tokens=lexicalParser.DealParser(testCode);

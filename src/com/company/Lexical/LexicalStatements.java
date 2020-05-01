@@ -41,7 +41,7 @@ public class LexicalStatements {
                 tempWords = String.valueOf(codes.charAt(pos));
             }
         }
-        System.out.println("运算符cc："+tempWords);
+        System.out.println("运算符："+tempWords);
         lexicalTokens.addLexicalToken(tempWords, type, tempWords);
         return pos;
     }

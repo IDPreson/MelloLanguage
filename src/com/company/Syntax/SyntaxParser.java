@@ -136,6 +136,13 @@ public class SyntaxParser {
         }
         return null;
     }
+    SyntaxAST.ASTNode AssignmentVar(String name){
+        SyntaxAST.ASTNode tempNode=new SyntaxAST.ASTNode();
+        tempNode.Declaration="AssignmentDeclaration";
+        tempNode.name=name;
+        tempNode.expressions=PaserExpreession("VarDeclaration");
+        return tempNode;
+    }
     SyntaxAST.ASTNode VarDeclaration(String type, LexicalTokens.Token tempToken, int state, SyntaxAST.ASTNode tempVar) {
         if (!TokenVector.isEmpty()) {
             tempToken = TokenVector.peek();
@@ -225,19 +232,30 @@ public class SyntaxParser {
                 return BodyAddress;
             }
             if (flag) {
-                if (tempToken.type.equals("KeyWords")) {
-                    switch (tempToken.name){
-                        case "string":case "int": case "bool":
-                            SyntaxAST.ASTNode var=new SyntaxAST.ASTNode();
-                            var = VarDeclaration(tempToken.name, tempToken, 0, var);
-                            BodyAddress.Nodes.add(var);
+                switch (tempToken.type){
+                    case "KeyWords":
+                        switch (tempToken.name){
+                            case "string":case "int": case "bool":
+                                SyntaxAST.ASTNode var=new SyntaxAST.ASTNode();
+                                var = VarDeclaration(tempToken.name, tempToken, 0, var);
+                                BodyAddress.Nodes.add(var);
+                                break;
+                            case "if":
+                                SyntaxAST.ASTNode ifstate;
+                                ifstate = IfStatement();
+                                BodyAddress.Nodes.add(ifstate);
+                                break;
+                        }
+                        break;
+                    case "Constant":
+                        if(TokenVector.peek().type.equals("Operators") && TokenVector.peek().name.equals("=")){
+                            TokenVector.poll();
+                            SyntaxAST.ASTNode assignment;
+                            assignment=AssignmentVar(tempToken.name);
+                            BodyAddress.Nodes.add(assignment);
                             break;
-                        case "if":
-                            SyntaxAST.ASTNode ifstate;
-                            ifstate = IfStatement();
-                            BodyAddress.Nodes.add(ifstate);
-                            break;
-                    }
+                        }
+                        break;
                 }
             }
             if (tempToken.type.equals("Operators") && tempToken.name.equals("{")) {
@@ -281,7 +299,7 @@ public class SyntaxParser {
     void outASTree(SyntaxAST.ASTNode tempNode){
         switch (tempNode.Declaration){
             case "VarDeclaration":
-                System.out.println("VarDeclaration:" + tempNode.name + "||" + tempNode.type);
+                System.out.println("VarDeclaration:" + tempNode + "||" );
                 while(tempNode.expressions.expression.isEmpty()){
                     System.out.println("expression:"+tempNode.expressions.expression.poll());
                 }
@@ -301,6 +319,9 @@ public class SyntaxParser {
                     System.out.println("ElseBody");
                     outASTree(tempNode.Else.ElseBody.Nodes.poll());
                 }
+                break;
+            case "AssignmentDeclaration":
+                System.out.println(tempNode);
                 break;
         }
     }
